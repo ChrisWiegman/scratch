@@ -3,4 +3,4 @@ vendor/
 
 
 # ecom-load-test
-ecom-load-test/*.csv
+simple-load-test/*.csv
