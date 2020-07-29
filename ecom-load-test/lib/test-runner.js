@@ -35,7 +35,7 @@ exports.executeTest = async function (testURL, concurrency = 5, wait = 0, debug 
             page.on('metrics', data => console.info(`👉 Timestamp added at ${data.metrics.Timestamp}`));
 
             // Emitted when a script within the page uses `console`
-            //page.on('console', message => console[message.type()](`👉 ${message.text()}`));
+            page.on('console', message => console.info(`👉 ${message.type()}: ${message.text()}`));
 
             // Emitted when the page emits an error event (for example, the page crashes)
             page.on('error', error => console.error(`❌ ${error}`));
