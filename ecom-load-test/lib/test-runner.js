@@ -4,7 +4,7 @@ const {
 const helpers = require('./helpers');
 const testDebugger = require('./test-debugger');
 
-exports.executeTest = async function (testURL, concurrency = 5, wait = 0, debug = false) {
+exports.executeTest = async function (testURL, testResults, concurrency = 5, wait = 0, debug = false) {
 
     console.log('Testing ' + testURL + ' with concurrency: ' + concurrency);
 
@@ -12,6 +12,12 @@ exports.executeTest = async function (testURL, concurrency = 5, wait = 0, debug 
         concurrency: Cluster.CONCURRENCY_CONTEXT,
         maxConcurrency: concurrency,
     });
+    let result = {
+        id: process.hrtime()[1],
+        concurrency: concurrency,
+        status: '',
+        time: ''
+    }
 
     await cluster.task(async ({
         page,
@@ -20,25 +26,25 @@ exports.executeTest = async function (testURL, concurrency = 5, wait = 0, debug 
 
         testDebugger.debug(page, debug)
 
-        const pageResponse = await page.goto(url);
-        //console.log(pageResponse.headers())
+        const cacheString = '/?nocache=' + await helpers.makeid(8);
+
+        const pageResponse = await page.goto(url + cacheString);
+        result.status = pageResponse.headers().status
 
         const performanceMetrics = await helpers.gatherPerformanceTimingMetrics(page);
-        //console.log(performanceMetrics)
+        result.time = (performanceMetrics.timing.loadEventEnd - performanceMetrics.timing.connectStart) / 1000
 
-        // Returns runtime metrics of the page
-        const metrics = await page.metrics();
-        //console.info(metrics);
+        testResults.push(result);
 
-        //console.log((performanceMetrics.connectEnd - performanceMetrics.connectStart) / 1000)
     });
 
     for (var i = 0; i < concurrency; i++) {
-        cluster.queue(testURL + '/?nocache=' + await helpers.makeid(8));
+        cluster.queue(testURL);
     }
 
     await cluster.idle();
     await cluster.close();
     console.log('Sleeping for ' + wait + 's');
     await helpers.sleep(wait * 1000);
+
 }

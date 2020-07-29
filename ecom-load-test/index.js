@@ -13,6 +13,7 @@ const runner = require('./lib/test-runner.js');
     let testConcurencies = [5];
     let wait = 0;
     let debug = false;
+    let testResults = [];
 
     if (runtimeArgs.length >= 2) {
         const concurrencyEntries = runtimeArgs[1].split(',');
@@ -31,9 +32,11 @@ const runner = require('./lib/test-runner.js');
         debug = true;
     }
 
-    runClusters(testConcurencies, async (concurrency) => {
-        await runner.executeTest(testURL, concurrency, wait, debug);
+    await runClusters(testConcurencies, async (concurrency) => {
+        await runner.executeTest(testURL, testResults, concurrency, wait, debug);
     })
+
+    console.log(testResults);
 
 })();
 
