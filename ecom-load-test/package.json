@@ -10,7 +10,6 @@
   "license": "ISC",
   "dependencies": {
     "puppeteer": "^5.2.1",
-    "puppeteer-cluster": "^0.21.0",
-    "puppeteer-loadtest": "^1.0.7"
+    "puppeteer-cluster": "^0.21.0"
   }
 }

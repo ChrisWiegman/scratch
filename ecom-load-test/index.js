@@ -1,44 +1,43 @@
-const puppeteer = require('puppeteer');
+const runner = require('./lib/test-runner.js');
 
 (async () => {
 
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
-    await page.setCacheEnabled(false);
+    const runtimeArgs = process.argv.slice(2);
 
-    const callId = await makeid(8);
+    if (runtimeArgs.length === 0) {
+        console.error('You must supply a URL to continue')
+    }
 
-    const url = 'https://ecom150784.wpenginedev.com/?nocache=' + callId;
-    console.log(url);
+    let testURL = runtimeArgs[0];
+    let testConcurencies = [5];
+    let wait = 0;
+    let debug = false;
 
-    const pageResponse = await page.goto(url);
-    console.log(pageResponse.headers().status)
+    if (runtimeArgs.length >= 2) {
+        const concurrencyEntries = runtimeArgs[1].split(',');
+        testConcurencies = [];
 
-    const performanceMetrics = await gatherPerformanceTimingMetrics(page);
-    console.log(performanceMetrics)
+        concurrencyEntries.forEach(function (concurrency) {
+            testConcurencies.push(parseInt(concurrency));
+        });
+    }
 
-    const content = await page.content();
+    if (runtimeArgs.length >= 3) {
+        wait = parseInt(runtimeArgs[2]);
+    }
 
-    console.log(content.length);
+    if (runtimeArgs.length === 4 && (runtimeArgs[3] === 1 || runtimeArgs[3] === 'true')) {
+        debug = true;
+    }
 
-    await browser.close();
+    runClusters(testConcurencies, async (concurrency) => {
+        await runner.executeTest(testURL, concurrency, wait, debug);
+    })
 
 })();
 
-async function makeid(length) {
-    var result = '';
-    var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    var charactersLength = characters.length;
-    for (var i = 0; i < length; i++) {
-        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+async function runClusters(array, callback) {
+    for (let index = 0; index < array.length; index++) {
+        await callback(array[index], index, array);
     }
-    return result;
-}
-
-async function gatherPerformanceTimingMetrics (page) {
-    // The values returned from evaluate() function should be JSON serializable.
-    const rawMetrics = await page.evaluate(() =>
-        JSON.stringify(window.performance.timing));
-    const metrics = JSON.parse(rawMetrics);
-    return metrics;
 }
