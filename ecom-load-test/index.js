@@ -1,4 +1,5 @@
 const runner = require('./lib/test-runner.js');
+const ObjectsToCsv = require('objects-to-csv');
 
 (async () => {
 
@@ -14,6 +15,7 @@ const runner = require('./lib/test-runner.js');
     let wait = 0;
     let debug = false;
     let testResults = [];
+    let outputFile = './output.csv'
 
     if (runtimeArgs.length >= 2) {
         const concurrencyEntries = runtimeArgs[1].split(',');
@@ -28,7 +30,11 @@ const runner = require('./lib/test-runner.js');
         wait = parseInt(runtimeArgs[2]);
     }
 
-    if (runtimeArgs.length === 4 && (runtimeArgs[3] === 1 || runtimeArgs[3] === 'true')) {
+    if (runtimeArgs.length >= 4) {
+        outputFile = runtimeArgs[3];
+    }
+
+    if (runtimeArgs.length === 5 && (runtimeArgs[4] === 1 || runtimeArgs[4] === 'true')) {
         debug = true;
     }
 
@@ -36,7 +42,10 @@ const runner = require('./lib/test-runner.js');
         await runner.executeTest(testURL, testResults, concurrency, wait, debug);
     })
 
-    console.log(testResults);
+    const csv = new ObjectsToCsv(testResults);
+
+    // Save to file:
+    await csv.toDisk(outputFile);
 
 })();
 

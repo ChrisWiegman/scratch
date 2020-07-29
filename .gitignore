@@ -1,2 +1,6 @@
 node_modules/
 vendor/
+
+
+# ecom-load-test
+ecom-load-test/*.csv
