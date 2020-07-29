@@ -5,7 +5,8 @@ const runner = require('./lib/test-runner.js');
     const runtimeArgs = process.argv.slice(2);
 
     if (runtimeArgs.length === 0) {
-        console.error('You must supply a URL to continue')
+        console.error('You must supply a URL to continue');
+        process.exit(1);
     }
 
     let testURL = runtimeArgs[0];
