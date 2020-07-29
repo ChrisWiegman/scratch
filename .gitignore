@@ -1,6 +1,5 @@
 node_modules/
 vendor/
 
-
 # ecom-load-test
 simple-load-test/*.csv
