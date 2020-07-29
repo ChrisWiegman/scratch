@@ -9,6 +9,7 @@
   "author": "Chris Wiegman <chris.wiegman@wpengine.com>",
   "license": "ISC",
   "dependencies": {
+    "objects-to-csv": "^1.3.6",
     "puppeteer": "^5.2.1",
     "puppeteer-cluster": "^0.21.0"
   }
