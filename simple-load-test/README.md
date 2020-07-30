@@ -23,6 +23,10 @@ node index.js <url> [concurency] [wait] [outputFile] [debug]
 * **outputFile**: The tile to save results to in csv format. _default is ./output.csv_
 * **debug**: Will show a running list of all connections made as well as their results. _default is false_
 
+## Return Data
+
+As this is meant to be _simple_ it creats a CSV with only 2 columns, concurrency to allow identifying which test was run and the time the test took. Note it only returns results for **successful** tests. If a test failed it is omitted. Dividing a count of each test against its concurrency will give you the success rate for a given concurrency.
+
 ## Examples:
 
 * Perform a single test with 5 concurrent users against https://chriswiegman.com
