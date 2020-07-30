@@ -12,30 +12,31 @@ exports.executeTest = async function (testURL, testResults, concurrency = 5, wai
         concurrency: Cluster.CONCURRENCY_CONTEXT,
         maxConcurrency: concurrency,
     });
-    let result = {
-        id: process.hrtime()[1],
-        concurrency: concurrency,
-        status: '',
-        time: ''
-    }
 
     await cluster.task(async ({
         page,
         data: url
     }) => {
 
+        let result = {
+            concurrency: concurrency,
+            time: ''
+        }
+
         testDebugger.debug(page, debug)
 
         const cacheString = '/?nocache=' + await helpers.makeid(8);
 
         const pageResponse = await page.goto(url + cacheString);
-        result.status = pageResponse.headers().status
 
-        const performanceMetrics = await helpers.gatherPerformanceTimingMetrics(page);
-        result.time = (performanceMetrics.timing.loadEventEnd - performanceMetrics.timing.connectStart) / 1000
+        if (pageResponse.headers().status == 200) {
 
-        testResults.push(result);
+            const performanceMetrics = await helpers.gatherPerformanceTimingMetrics(page);
+            result.time = (performanceMetrics.timing.loadEventEnd - performanceMetrics.timing.connectStart) / 1000
 
+            testResults.push(result);
+
+        }
     });
 
     for (var i = 0; i < concurrency; i++) {
