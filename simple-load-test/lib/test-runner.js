@@ -25,6 +25,8 @@ exports.executeTest = async function (testURL, testResults, concurrency = 5, wai
 
         testDebugger.debug(page, debug)
 
+        await page.setDefaultNavigationTimeout(60000);
+
         const cacheString = '/?nocache=' + await helpers.makeid(8);
 
         const pageResponse = await page.goto(url + cacheString);
